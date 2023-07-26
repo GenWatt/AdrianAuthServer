@@ -11,6 +11,7 @@ import cors from 'cors'
 import Controller from './src/controllers/Controller'
 import controllers from './src/controllers/controllers'
 import helmet from 'helmet'
+import mkdirIfNotExists from './src/utils/mkdirIfNotExists'
 
 class Server {
   private app: express.Application = express()
@@ -27,6 +28,7 @@ class Server {
     this.app.use(
       helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } })
     )
+    this.createDirs()
     this.app.use(cookieParser())
     this.app.use(cors({ origin: this.corsList, credentials: true }))
     this.app.use(express.static(path.join(__dirname, 'public')))
@@ -39,6 +41,13 @@ class Server {
 
     // Global error handler
     this.app.use(globalError)
+  }
+
+  private createDirs(): void {
+    const dirs = ['public', 'public/images', 'public/images/profile']
+    dirs.forEach((dir) => {
+      mkdirIfNotExists(dir)
+    })
   }
 
   public start(): void {
