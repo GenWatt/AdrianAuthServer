@@ -4,6 +4,7 @@ import TokenService from './services/TokenService'
 import AuthDatabase from './db/AuthDatabase'
 import UserService from './services/UserService'
 import mongoose from 'mongoose'
+import ProfilePictureService from './services/ProfilePictureService'
 
 class ServicesContainer {
   public container = new Container()
@@ -17,6 +18,10 @@ class ServicesContainer {
     this.container.bind<TokenService>(TokenService).toSelf().inSingletonScope()
     this.container.bind<AuthDatabase>(AuthDatabase).toSelf().inSingletonScope()
     this.container.bind<UserService>(UserService).toSelf().inSingletonScope()
+    this.container
+      .bind<ProfilePictureService>(ProfilePictureService)
+      .toSelf()
+      .inSingletonScope()
   }
 
   public get<T>(serviceIdentifier: interfaces.ServiceIdentifier<T>): T {

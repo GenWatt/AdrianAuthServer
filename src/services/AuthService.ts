@@ -51,10 +51,7 @@ class AuthService {
   public async login(loginUser: ILoginUser) {
     const { password, identifier } = loginUser
     const user = await User.findOne({
-      $or: [
-        { email: identifier, active: true },
-        { username: identifier, active: true },
-      ],
+      $or: [{ email: identifier }, { username: identifier }],
     })
 
     if (!user || user.provider !== 'local' || !user.password) {
@@ -71,7 +68,10 @@ class AuthService {
       this.tokenService.createAccessAndRefreshToken(user)
 
     // update user refresh token
-    await User.updateOne({ _id: user._id }, { refreshToken, isLogged: true })
+    await User.updateOne(
+      { _id: user._id },
+      { refreshToken, isLogged: true, active: true }
+    )
 
     return { accessToken, refreshToken, user }
   }
@@ -85,7 +85,7 @@ class AuthService {
 
     if (!result) throw new HttpError(400, 'Invalid token')
 
-    const user = await User.findOne({ email: result.email })
+    const user = await User.findOne({ email: result.email, active: true })
 
     if (!user) throw new HttpError(404, 'User not found')
 
@@ -102,7 +102,7 @@ class AuthService {
 
   public async resetPassword(email: string) {
     // check if email exists
-    const user = await User.findOne({ email })
+    const user = await User.findOne({ email, active: true })
 
     if (!user) throw new HttpError(404, 'User not found')
 
@@ -160,7 +160,10 @@ class AuthService {
   }
 
   public async logout(user: IUser, res: Response) {
-    await User.updateOne({ _id: user._id }, { refreshToken: '' })
+    await User.updateOne(
+      { _id: user._id },
+      { refreshToken: '', isLogged: false }
+    )
     res.clearCookie('access_token')
   }
 }

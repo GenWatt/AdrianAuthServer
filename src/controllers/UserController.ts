@@ -32,6 +32,24 @@ class UserController implements Controller {
       Auth.authenticateJwtAndRefreshToken,
       this.deactivateAccount
     )
+    this.router.delete(
+      '/delete-account',
+      Auth.authenticateJwtAndRefreshToken,
+      this.deleteAccount
+    )
+  }
+
+  public deleteAccount = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      await this.userServices.deleteAccount(req.user as IUser, res)
+      res.json({ success: true, message: 'Account deleted' })
+    } catch (error) {
+      next(error)
+    }
   }
 
   public deactivateAccount = async (

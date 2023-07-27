@@ -51,11 +51,14 @@ class Auth {
       const user = await User.findOne({
         _id: decodedToken._id,
         isLogged: true,
-        active: true,
       })
 
       if (!user) {
         return next(new HttpError(401, 'Unauthorized'))
+      }
+
+      if (user.active === false) {
+        return next(new HttpError(401, 'This user is not active'))
       }
 
       // verify refresh token

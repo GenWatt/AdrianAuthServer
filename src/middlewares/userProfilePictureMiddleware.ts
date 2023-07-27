@@ -4,8 +4,8 @@ import HttpError from '../errors/HttpError'
 import userProfilePictureStorage from '../storages/userProfileStorage'
 import User from '../models/User'
 import { IUser } from '../types/types'
-import fs from 'fs'
-import path from 'path'
+import container from '../inversify.config'
+import ProfilePictureService from '../services/ProfilePictureService'
 
 const uploadPicture = multer({
   storage: userProfilePictureStorage,
@@ -32,32 +32,21 @@ const userProfilePictureMiddleware = async (
   next: NextFunction
 ) => {
   try {
+    const profilePictureService = container.get<ProfilePictureService>(
+      ProfilePictureService
+    )
     uploadPicture.single('profilePicture')(req, res, async (err) => {
       if (err) {
         return next(err)
       }
 
-      const profilePicture = (req.user as IUser).profilePicture.replace(
-        `${process.env.BASE_URL}`,
-        path.join(process.cwd(), '/public')
-      )
-
-      // remove old profile picture
-      if (profilePicture) {
-        if (fs.existsSync(profilePicture)) {
-          fs.unlinkSync(profilePicture)
-        }
-
-        await User.updateOne(
-          { _id: (req.user as IUser)._id },
-          { profilePicture: '' }
-        )
+      if (!req.file) {
+        return next(new HttpError(400, 'No file'))
       }
 
-      const fullPath = `${process.env.BASE_URL}/${req.file?.path
-        .split('\\')
-        .join('/')
-        .replace('public/', '')}`
+      await profilePictureService.removeProfilePicture(req.user as IUser)
+
+      const fullPath = profilePictureService.getStaticPath(req.file?.path)
 
       await User.updateOne(
         { _id: (req.user as IUser)._id },

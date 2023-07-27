@@ -8,6 +8,7 @@ import Controller from './Controller'
 import container from '../inversify.config'
 import TokenService from '../services/TokenService'
 import HttpError from '../errors/HttpError'
+import Auth from '../middlewares/Auth'
 
 class AuthController implements Controller {
   public router = Router()
@@ -26,7 +27,11 @@ class AuthController implements Controller {
     )
     this.router.get('/confirm/:token', this.confirmEmail)
     this.router.post('/login', this.login)
-    this.router.get('/logout', this.logout)
+    this.router.post(
+      '/logout',
+      Auth.authenticateJwtAndRefreshToken,
+      this.logout
+    )
     this.router.post('/reset-password', this.resetPaswsord)
     this.router.post('/new-password', this.newPassword)
   }
@@ -79,9 +84,9 @@ class AuthController implements Controller {
     }
   }
 
-  public logout(req: Request, res: Response, next: NextFunction) {
+  public logout = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      this.AuthService.logout(req.user as IUser, res)
+      await this.AuthService.logout(req.user as IUser, res)
       res.json({ success: true, message: 'Logged out' })
     } catch (error) {
       next(error)
