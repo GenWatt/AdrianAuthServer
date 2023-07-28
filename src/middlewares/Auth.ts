@@ -40,6 +40,7 @@ class Auth {
 
   static async refreshToken(req: Request, res: Response, next: NextFunction) {
     const tokenService = container.get<TokenService>(TokenService)
+
     if (!req.user) {
       // check if user is log in and have valid refresh token
       const decodedToken = tokenService.verifyAccessToken(cookieExtractor(req))

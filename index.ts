@@ -12,6 +12,7 @@ import Controller from './src/controllers/Controller'
 import controllers from './src/controllers/controllers'
 import helmet from 'helmet'
 import mkdirIfNotExists from './src/utils/mkdirIfNotExists'
+import rateLimit from 'express-rate-limit'
 
 class Server {
   private app: express.Application = express()
@@ -25,8 +26,16 @@ class Server {
   }
 
   public initMiddlewares(): void {
+    this.app.set('trust proxy', 1)
     this.app.use(
       helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } })
+    )
+    this.app.use(
+      rateLimit({
+        windowMs: 10 * 60 * 1000,
+        max: 100,
+        standardHeaders: true,
+      })
     )
     this.createDirs()
     this.app.use(cookieParser())

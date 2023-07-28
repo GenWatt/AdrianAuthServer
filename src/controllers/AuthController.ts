@@ -86,7 +86,7 @@ class AuthController implements Controller {
 
   public logout = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      await this.AuthService.logout(req.user as IUser, res)
+      await this.AuthService.logout(req.user, res)
       res.json({ success: true, message: 'Logged out' })
     } catch (error) {
       next(error)
