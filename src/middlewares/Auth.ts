@@ -19,17 +19,16 @@ class Auth {
         return next()
       }
 
-      // get payload from token
       const user = await User.findOne({
         _id: decodedToken._id,
         isLogged: true,
         active: true,
-      })
+      }).populate('userSettings')
 
       if (!user) {
         return next(new HttpError(401, 'Unauthorized'))
       }
-      // set user to req.user
+
       req.user = user
 
       next()
@@ -42,47 +41,53 @@ class Auth {
     const tokenService = container.get<TokenService>(TokenService)
 
     if (!req.user) {
-      // check if user is log in and have valid refresh token
-      const decodedToken = tokenService.verifyAccessToken(cookieExtractor(req))
+      try {
+        // check if user is log in and have valid refresh token
+        const decodedToken = tokenService.verifyAccessToken(
+          cookieExtractor(req)
+        )
 
-      if (!decodedToken) {
-        return next(new HttpError(401, 'Unauthorized'))
+        if (!decodedToken) {
+          return next(new HttpError(401, 'Unauthorized'))
+        }
+
+        const user = await User.findOne({
+          _id: decodedToken._id,
+          isLogged: true,
+          active: true,
+        }).populate('userSettings')
+
+        if (!user) {
+          return next(new HttpError(401, 'Unauthorized'))
+        }
+
+        // verify refresh token
+        const decodedRefreshToken = tokenService.verifyRefreshToken(
+          user.refreshToken
+        )
+
+        if (!decodedRefreshToken?.isValid) {
+          return next(new HttpError(401, 'Unauthorized'))
+        }
+
+        // create new access token
+        const { accessToken, refreshToken } =
+          tokenService.createAccessAndRefreshToken(user)
+
+        tokenService.saveAccessTokenToCookie(res, accessToken)
+
+        // update user refresh token
+        await User.updateOne(
+          { _id: user._id },
+          { refreshToken, isLogged: true }
+        )
+
+        req.user = user
+
+        return next()
+      } catch (error) {
+        next(error)
       }
-
-      const user = await User.findOne({
-        _id: decodedToken._id,
-        isLogged: true,
-      })
-
-      if (!user) {
-        return next(new HttpError(401, 'Unauthorized'))
-      }
-
-      if (user.active === false) {
-        return next(new HttpError(401, 'This user is not active'))
-      }
-
-      // verify refresh token
-      const decodedRefreshToken = tokenService.verifyRefreshToken(
-        user.refreshToken
-      )
-
-      if (!decodedRefreshToken?.isValid) {
-        return next(new HttpError(401, 'Unauthorized'))
-      }
-
-      // create new access token
-      const { accessToken, refreshToken } =
-        tokenService.createAccessAndRefreshToken(user)
-
-      tokenService.saveAccessTokenToCookie(res, accessToken)
-
-      // update user refresh token
-      await User.updateOne({ _id: user._id }, { refreshToken, isLogged: true })
-
-      req.user = user
-
-      return next()
     }
 
     next()

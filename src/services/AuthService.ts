@@ -12,6 +12,7 @@ import bycrypt from 'bcrypt'
 import resetPasswordEmailBody from '../utils/emailBodies/resetPasswordEmailBody'
 import AuthDatabase from '../db/AuthDatabase'
 import { Response } from 'express'
+import UserSettings from '../models/UserSettings'
 
 @injectable()
 class AuthService {
@@ -45,6 +46,9 @@ class AuthService {
     })
 
     await newUser.save(this.databaseService.getSessionObject())
+    await new UserSettings({ user: newUser._id }).save(
+      this.databaseService.getSessionObject()
+    )
     await emailSender.sendEmail(options)
   }
 

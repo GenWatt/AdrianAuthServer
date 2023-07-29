@@ -65,6 +65,7 @@ const UserSchema = new mongoose.Schema({
     type: Boolean,
     default: true,
   },
+  userSettings: { type: mongoose.Schema.Types.ObjectId, ref: 'UserSettings' },
 })
 
 UserSchema.pre('save', function (next) {

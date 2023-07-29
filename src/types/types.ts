@@ -1,6 +1,4 @@
 import { Types } from 'mongoose'
-import { Request } from 'express'
-
 enum MethodTypes {
   GET = 'get',
   POST = 'post',
@@ -31,10 +29,6 @@ interface IConfirmationToken {
   token: string
 }
 
-interface IUserRequest extends Request {
-  user?: IUser
-}
-
 interface IUser {
   _id: Types.ObjectId
   username: string
@@ -51,6 +45,7 @@ interface IUser {
   refreshToken: string
   isLogged: boolean
   active: boolean
+  userSettings: Types.ObjectId
 }
 
 interface IDecodedToken {
@@ -82,6 +77,23 @@ interface LoginData {
   callbackUrl?: string
 }
 
+interface IUSerSettings {
+  _id: Types.ObjectId
+  user: Types.ObjectId
+  theme: 'dark' | 'light'
+  language: 'en' | 'pl'
+  createdAt: Date
+  updatedAt: Date
+}
+
+interface IMigration {
+  name: string
+  done: boolean
+  createdAt: Date
+  updatedAt: Date
+  _id: Types.ObjectId
+}
+
 export {
   MethodTypes,
   UserBody,
@@ -93,5 +105,6 @@ export {
   IConfirmationToken,
   IDecodedResetToken,
   IDecodedConfirmToken,
-  IUserRequest,
+  IUSerSettings,
+  IMigration,
 }

@@ -1,5 +1,5 @@
 import { Request, Response, NextFunction } from 'express'
-import { IUser, UserBody } from '../types/types'
+import { UserBody } from '../types/types'
 import { Router } from 'express'
 import AuthService from '../services/AuthService'
 import registerValidation from '../validators/registerValidation'
@@ -9,6 +9,7 @@ import container from '../inversify.config'
 import TokenService from '../services/TokenService'
 import HttpError from '../errors/HttpError'
 import Auth from '../middlewares/Auth'
+import newPasswordValidation from '../validators/newPasswordValidation'
 
 class AuthController implements Controller {
   public router = Router()
@@ -33,7 +34,11 @@ class AuthController implements Controller {
       this.logout
     )
     this.router.post('/reset-password', this.resetPaswsord)
-    this.router.post('/new-password', this.newPassword)
+    this.router.post(
+      '/new-password',
+      validateMiddleware(newPasswordValidation),
+      this.newPassword
+    )
   }
 
   public register = async (
@@ -43,7 +48,7 @@ class AuthController implements Controller {
   ) => {
     try {
       this.AuthService.register(req.body)
-      res.json({ success: true })
+      res.status(201).json({ success: true, message: 'User created' })
     } catch (error: any) {
       next(error)
     }
@@ -103,7 +108,10 @@ class AuthController implements Controller {
 
       this.AuthService.resetPassword(email)
 
-      res.end()
+      res.json({
+        success: true,
+        message: 'Check your email for further instructions',
+      })
     } catch (error) {
       next(error)
     }
@@ -114,16 +122,11 @@ class AuthController implements Controller {
     res: Response,
     next: NextFunction
   ) => {
-    const { password, confirmPassword } = req.body
+    const { password } = req.body
     const { token } = req.query
 
     try {
       if (!token) throw new HttpError(400, 'No token provided')
-
-      if (password !== confirmPassword) {
-        throw new HttpError(400, 'Passwords do not match')
-      }
-
       if (typeof token !== 'string') {
         throw new HttpError(400, 'Invalid token')
       }

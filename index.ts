@@ -13,13 +13,16 @@ import controllers from './src/controllers/controllers'
 import helmet from 'helmet'
 import mkdirIfNotExists from './src/utils/mkdirIfNotExists'
 import rateLimit from 'express-rate-limit'
+import env from './src/validators/envValidation'
+import Migration from './src/migrations'
 
 class Server {
   private app: express.Application = express()
-  private port: number = process.env.PORT ? parseInt(process.env.PORT) : 3000
+  private port: number = env.PORT
   private corsList: string[] = [process.env.AUTH_CLIENT_URL!]
   private controllers: Controller[] = controllers
   private authDatabase: AuthDatabase
+  private migration: Migration = new Migration()
 
   constructor() {
     this.authDatabase = services.container.resolve<AuthDatabase>(AuthDatabase)
@@ -60,6 +63,7 @@ class Server {
   }
 
   public start(): void {
+    this.migration.runMigrations()
     this.initMiddlewares()
     this.app.listen(this.port, () => {
       console.log(`Server listening on port ${this.port}`)

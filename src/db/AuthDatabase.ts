@@ -1,6 +1,7 @@
 import mongoose from 'mongoose'
 import Database from './Database'
 import { inject, injectable } from 'inversify'
+import HttpError from '../errors/HttpError'
 
 @injectable()
 class AuthDatabase extends Database {
@@ -37,7 +38,7 @@ class AuthDatabase extends Database {
 
       console.log('MongoDB connected!')
     } catch (err: any) {
-      console.error(err.message)
+      throw new HttpError(500, err.message)
     }
   }
 }

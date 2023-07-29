@@ -1,5 +1,4 @@
 import { Request, Response, NextFunction } from 'express'
-import { ValidationError } from 'express-validation'
 
 function globalError(
   err: any,
@@ -12,7 +11,7 @@ function globalError(
     if (!err.status) {
       res.status(500).json({ message: 'Internal Server Error' })
     }
-    res.status(err.status).json({ message: err.message })
+    res.status(err.status).json({ success: false, message: err.message })
   }
 }
 
