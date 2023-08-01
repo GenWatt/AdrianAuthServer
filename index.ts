@@ -19,7 +19,10 @@ import Migration from './src/migrations'
 class Server {
   private app: express.Application = express()
   private port: number = env.PORT
-  private corsList: string[] = [process.env.AUTH_CLIENT_URL!]
+  private corsList: string[] = [
+    process.env.AUTH_CLIENT_URL!,
+    process.env.ADRIAN_TUBE_URL!,
+  ]
   private controllers: Controller[] = controllers
   private authDatabase: AuthDatabase
   private migration: Migration = new Migration()

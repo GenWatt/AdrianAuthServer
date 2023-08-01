@@ -56,7 +56,6 @@ class AuthController implements Controller {
 
   public login = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      const { callbackUrl } = req.body
       const data = await this.AuthService.login(req.body)
 
       req.user = data.user
@@ -65,10 +64,6 @@ class AuthController implements Controller {
         return res.json({ success: false, message: 'No access token' })
 
       this.tokenManager.saveAccessTokenToCookie(res, data.accessToken)
-
-      if (callbackUrl) {
-        return res.redirect(`${callbackUrl}`)
-      }
 
       res.json({ user: req.user, success: true, message: 'Logged in' })
     } catch (error) {
