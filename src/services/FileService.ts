@@ -5,7 +5,7 @@ import User from '../models/User'
 import { IUser } from '../types/types'
 
 @injectable()
-class ProfilePictureService {
+class FileService {
   public getStaticPath = (path: string) => {
     return `${process.env.BASE_URL}/${path
       .split('\\')
@@ -29,6 +29,16 @@ class ProfilePictureService {
 
     await User.updateOne({ _id: user._id }, { profilePicture: '' })
   }
+
+  public removeCoverPicture = async (user: IUser) => {
+    const relativePath = this.getRelativePath(user.coverPicture)
+
+    if (fs.existsSync(relativePath)) {
+      fs.unlinkSync(relativePath)
+    }
+
+    await User.updateOne({ _id: user._id }, { coverPicture: '' })
+  }
 }
 
-export default ProfilePictureService
+export default FileService

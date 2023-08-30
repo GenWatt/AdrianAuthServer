@@ -6,6 +6,7 @@ import UserService from '../services/UserService'
 import container from '../inversify.config'
 import userProfilePictureMiddleware from '../middlewares/userProfilePictureMiddleware'
 import { IUser } from '../types/types'
+import userCoverPictureMiddleware from '../middlewares/userCoverPictureMiddleware'
 
 class UserController implements Controller {
   router: Router = Router()
@@ -36,6 +37,12 @@ class UserController implements Controller {
       '/delete-account',
       Auth.authenticateJwtAndRefreshToken,
       this.deleteAccount
+    )
+    this.router.put(
+      '/cover-picture',
+      Auth.authenticateJwtAndRefreshToken,
+      userCoverPictureMiddleware,
+      this.updateCoverPicture
     )
   }
 
@@ -75,6 +82,22 @@ class UserController implements Controller {
         success: true,
         message: 'Profile picture updated',
         profilePicture: req.file?.path,
+      })
+    } catch (error) {
+      next(error)
+    }
+  }
+
+  public updateCoverPicture = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      res.json({
+        success: true,
+        message: 'Cover picture updated',
+        coverPicture: req.file?.path,
       })
     } catch (error) {
       next(error)

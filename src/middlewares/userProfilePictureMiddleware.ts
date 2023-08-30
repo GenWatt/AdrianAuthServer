@@ -5,7 +5,7 @@ import userProfilePictureStorage from '../storages/userProfileStorage'
 import User from '../models/User'
 import { IUser } from '../types/types'
 import container from '../inversify.config'
-import ProfilePictureService from '../services/ProfilePictureService'
+import FileService from '../services/FileService'
 
 const uploadPicture = multer({
   storage: userProfilePictureStorage,
@@ -32,10 +32,14 @@ const userProfilePictureMiddleware = async (
   next: NextFunction
 ) => {
   try {
-    const profilePictureService = container.get<ProfilePictureService>(
-      ProfilePictureService
+    const fileService = container.get<FileService>(
+      FileService
     )
     uploadPicture.single('profilePicture')(req, res, async (err) => {
+      if (err instanceof multer.MulterError) {
+        return next(new HttpError(400, err.message))
+      }
+      
       if (err) {
         return next(err)
       }
@@ -44,9 +48,9 @@ const userProfilePictureMiddleware = async (
         return next(new HttpError(400, 'No file'))
       }
 
-      await profilePictureService.removeProfilePicture(req.user as IUser)
+      await fileService.removeProfilePicture(req.user as IUser)
 
-      const fullPath = profilePictureService.getStaticPath(req.file?.path)
+      const fullPath = fileService.getStaticPath(req.file?.path)
 
       await User.updateOne(
         { _id: (req.user as IUser)._id },

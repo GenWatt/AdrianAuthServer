@@ -4,7 +4,7 @@ import TokenService from './services/TokenService'
 import AuthDatabase from './db/AuthDatabase'
 import UserService from './services/UserService'
 import mongoose from 'mongoose'
-import ProfilePictureService from './services/ProfilePictureService'
+import FileService from './services/FileService'
 import UserSettingsService from './services/UserSettingsService'
 
 class ServicesContainer {
@@ -20,7 +20,7 @@ class ServicesContainer {
     this.container.bind<AuthDatabase>(AuthDatabase).toSelf().inSingletonScope()
     this.container.bind<UserService>(UserService).toSelf().inSingletonScope()
     this.container
-      .bind<ProfilePictureService>(ProfilePictureService)
+      .bind<FileService>(FileService)
       .toSelf()
       .inSingletonScope()
     this.container

@@ -1,6 +1,7 @@
 import multer from 'multer'
 import { USER_PROFILE_PATH } from '../constants'
 import mkdirIfNotExists from '../utils/mkdirIfNotExists'
+import { v4 } from 'uuid'
 
 const userProfilePictureStorage = multer.diskStorage({
   destination: (req, file, cb) => {
@@ -8,7 +9,8 @@ const userProfilePictureStorage = multer.diskStorage({
     cb(null, USER_PROFILE_PATH)
   },
   filename: (req, file, cb) => {
-    const fileName = `${Date.now()}-${file.originalname}`
+    const ext = file.mimetype.split('/')[1]
+    const fileName = `${v4()}.${ext}`
     cb(null, fileName)
   },
 })
