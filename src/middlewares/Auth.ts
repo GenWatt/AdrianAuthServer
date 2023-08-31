@@ -4,6 +4,7 @@ import User from '../models/User'
 import container from '../inversify.config'
 import TokenService from '../services/TokenService'
 import HttpError from '../errors/HttpError'
+import { Types } from 'mongoose'
 
 class Auth {
   static async authenticateJwt(
@@ -23,7 +24,7 @@ class Auth {
         _id: decodedToken._id,
         isLogged: true,
         active: true,
-      }).populate('userSettings')
+      })
 
       if (!user) {
         return next(new HttpError(401, 'Unauthorized'))
@@ -35,6 +36,13 @@ class Auth {
     } catch (error) {
       next(error)
     }
+  }
+
+  static async updateUser(id: Types.ObjectId, refreshToken?: string, isLogged: boolean = true) {
+    await User.updateOne(
+      { _id: id },
+      { refreshToken, isLogged: isLogged }
+    )
   }
 
   static async refreshToken(req: Request, res: Response, next: NextFunction) {
@@ -55,7 +63,7 @@ class Auth {
           _id: decodedToken._id,
           isLogged: true,
           active: true,
-        }).populate('userSettings')
+        })
 
         if (!user) {
           return next(new HttpError(401, 'Unauthorized'))
@@ -67,6 +75,7 @@ class Auth {
         )
 
         if (!decodedRefreshToken?.isValid) {
+          Auth.updateUser(user._id, undefined, false)
           return next(new HttpError(401, 'Unauthorized'))
         }
 
@@ -77,10 +86,7 @@ class Auth {
         tokenService.saveAccessTokenToCookie(res, accessToken)
 
         // update user refresh token
-        await User.updateOne(
-          { _id: user._id },
-          { refreshToken, isLogged: true }
-        )
+        Auth.updateUser(user._id, refreshToken)
 
         req.user = user
 

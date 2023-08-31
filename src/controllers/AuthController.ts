@@ -26,6 +26,7 @@ class AuthController implements Controller {
       validateMiddleware(registerValidation),
       this.register
     )
+    this.router.get('/send-confirm-email', this.sendConfirmEmail)
     this.router.get('/confirm/:token', this.confirmEmail)
     this.router.post('/login', this.login)
     this.router.post(
@@ -50,6 +51,30 @@ class AuthController implements Controller {
       this.AuthService.register(req.body)
       res.status(201).json({ success: true, message: 'User created' })
     } catch (error: any) {
+      next(error)
+    }
+  }
+
+  public sendConfirmEmail = async (
+    req: Request,
+    res: Response,
+    next: NextFunction
+  ) => {
+    try {
+      const { email } = req.query
+
+      if (!email) throw new HttpError(400, 'No email provided')
+      if (typeof email !== 'string') {
+        throw new HttpError(400, 'Invalid email')
+      }
+
+      await this.AuthService.sendConfirmEmail(email)
+
+      res.json({
+        success: true,
+        message: 'Check your email for further instructions',
+      })
+    } catch (error) {
       next(error)
     }
   }
@@ -86,7 +111,6 @@ class AuthController implements Controller {
 
   public logout = async (req: Request, res: Response, next: NextFunction) => {
     try {
-      console.log(req.user)
       await this.AuthService.logout(req.user, res)
       res.json({ success: true, message: 'Logged out' })
     } catch (error) {

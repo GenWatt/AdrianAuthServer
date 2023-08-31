@@ -22,6 +22,25 @@ class AuthService {
 
   public async register(user: UserBody) {
     const { username, email, password } = user
+    const newUser = new User({
+      username,
+      email,
+      password,
+      provider: 'local',
+      userSettings: new UserSettings(),
+    })
+
+    await newUser.save(this.databaseService.getSessionObject())
+    await this.sendConfirmEmail(email)
+  }
+
+  public async sendConfirmEmail(email: string) {
+    const isExistingEmail = await User.findOne({ email })
+
+    if (!isExistingEmail) {
+      throw new HttpError(404, 'Email not found')
+    }
+
     const confirmationToken = this.tokenService.createConfirmationToken(email)
 
     // save token in db
@@ -38,17 +57,6 @@ class AuthService {
       html: CreateConfirmationEmailBody(confirmationToken),
     }
 
-    const newUser = new User({
-      username,
-      email,
-      password,
-      provider: 'local',
-    })
-
-    await newUser.save(this.databaseService.getSessionObject())
-    await new UserSettings({ user: newUser._id }).save(
-      this.databaseService.getSessionObject()
-    )
     await emailSender.sendEmail(options)
   }
 

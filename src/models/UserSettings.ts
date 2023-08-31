@@ -1,12 +1,7 @@
 import mongoose from 'mongoose'
-import { IUSerSettings } from '../types/types'
+import { IUserSettings } from '../types/types'
 
-const UserSettingsSchema = new mongoose.Schema({
-  user: {
-    type: mongoose.Schema.Types.ObjectId,
-    ref: 'Users',
-    required: true,
-  },
+export const UserSettingsSchema = new mongoose.Schema<IUserSettings>({
   theme: {
     type: String,
     enum: ['light', 'dark'],
@@ -26,7 +21,7 @@ const UserSettingsSchema = new mongoose.Schema({
   },
 })
 
-const UserSettings = mongoose.model<IUSerSettings>(
+const UserSettings = mongoose.model<IUserSettings>(
   'UserSettings',
   UserSettingsSchema
 )

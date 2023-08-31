@@ -1,8 +1,9 @@
 import mongoose from 'mongoose'
 import bcrypt from 'bcrypt'
 import { IUser } from '../types/types'
+import { UserSettingsSchema } from './UserSettings'
 
-const UserSchema = new mongoose.Schema({
+const UserSchema = new mongoose.Schema<IUser>({
   username: {
     type: String,
     required: true,
@@ -65,7 +66,7 @@ const UserSchema = new mongoose.Schema({
     type: Boolean,
     default: true,
   },
-  userSettings: { type: mongoose.Schema.Types.ObjectId, ref: 'UserSettings' },
+  userSettings: UserSettingsSchema
 })
 
 UserSchema.pre('save', function (next) {

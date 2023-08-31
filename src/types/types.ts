@@ -45,7 +45,7 @@ interface IUser {
   refreshToken: string
   isLogged: boolean
   active: boolean
-  userSettings: Types.ObjectId
+  userSettings: IUserSettings
 }
 
 interface IDecodedToken {
@@ -77,9 +77,8 @@ interface LoginData {
   callbackUrl?: string
 }
 
-interface IUSerSettings {
+interface IUserSettings {
   _id: Types.ObjectId
-  user: Types.ObjectId
   theme: 'dark' | 'light'
   language: 'en' | 'pl'
   createdAt: Date
@@ -105,6 +104,6 @@ export {
   IConfirmationToken,
   IDecodedResetToken,
   IDecodedConfirmToken,
-  IUSerSettings,
+  IUserSettings,
   IMigration,
 }

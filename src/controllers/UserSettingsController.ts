@@ -1,7 +1,7 @@
 import { Router } from 'express'
 import Controller from './Controller'
 import { Request, Response, NextFunction } from 'express'
-import { IUSerSettings, IUser } from '../types/types'
+import { IUserSettings, IUser } from '../types/types'
 import Auth from '../middlewares/Auth'
 import UserSettingsService from '../services/UserSettingsService'
 import services from '../inversify.config'
@@ -52,12 +52,11 @@ class UserSettingsController implements Controller {
   }
 
   private updateUserSettings = async (
-    req: Request<{}, {}, IUSerSettings>,
+    req: Request<{}, {}, IUserSettings>,
     res: Response,
     next: NextFunction
   ) => {
     try {
-      console.log(req.body)
       const updatedUserSettings =
         await this.userSettingsService.updateUserSettings(req.user, req.body)
 

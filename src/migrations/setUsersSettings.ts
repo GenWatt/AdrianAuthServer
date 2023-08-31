@@ -1,5 +1,5 @@
-import UserSettings from '../models/UserSettings'
 import User from '../models/User'
+import UserSettings from '../models/UserSettings'
 
 async function setUsersSettings() {
   // delete all users userSettings prop
@@ -10,14 +10,7 @@ async function setUsersSettings() {
 
   // Create default user settings for each user
   const defaultSettingsPromises = usersWithoutSettings.map(async (user) => {
-    const defaultSettings = new UserSettings({
-      theme: 'light',
-      language: 'en',
-      user: user._id,
-    })
-
-    await defaultSettings.save()
-    user.userSettings = defaultSettings._id
+    user.userSettings = new UserSettings()
     await user.save()
   })
 
