@@ -48,7 +48,7 @@ class AuthController implements Controller {
     next: NextFunction
   ) => {
     try {
-      this.AuthService.register(req.body)
+      await this.AuthService.register(req.body)
       res.status(201).json({ success: true, message: 'User created' })
     } catch (error: any) {
       next(error)

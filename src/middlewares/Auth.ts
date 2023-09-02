@@ -5,7 +5,6 @@ import container from '../inversify.config'
 import TokenService from '../services/TokenService'
 import HttpError from '../errors/HttpError'
 import { Types } from 'mongoose'
-
 class Auth {
   static async authenticateJwt(
     req: Request,

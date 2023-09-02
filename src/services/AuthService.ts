@@ -22,6 +22,12 @@ class AuthService {
 
   public async register(user: UserBody) {
     const { username, email, password } = user
+    const isUserExists = await User.findOne({ $or: [{ username }, { email }] })
+    console.log(isUserExists)
+    if (isUserExists) {
+      throw new HttpError(400, 'User already exists')
+    }
+
     const newUser = new User({
       username,
       email,
@@ -65,6 +71,8 @@ class AuthService {
     const user = await User.findOne({
       $or: [{ email: identifier }, { username: identifier }],
     })
+
+    console.log(user)
 
     if (!user || user.provider !== 'local' || !user.password) {
       throw new HttpError(401, 'Invalid email or password')
