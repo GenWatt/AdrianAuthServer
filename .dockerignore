@@ -1,1 +1,6 @@
 ./node_modules
+.env
+.env.sample
+.dockerignore
+.gitignore
+node_modules

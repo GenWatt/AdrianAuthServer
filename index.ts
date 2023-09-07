@@ -32,6 +32,7 @@ class Server {
   }
 
   public initMiddlewares(): void {
+    console.log(process.env.AUTH_CLIENT_URL)
     this.app.set('trust proxy', 1)
     this.app.use(
       helmet({ crossOriginResourcePolicy: { policy: 'cross-origin' } })

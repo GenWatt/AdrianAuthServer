@@ -21,6 +21,7 @@ class UserService {
     await this.authServices.logout(user, res)
     await this.FileService.removeProfilePicture(user)
     await this.FileService.removeCoverPicture(user)
+    // all
     await User.deleteOne(
       { _id: user._id }
     )

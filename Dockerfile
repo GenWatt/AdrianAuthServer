@@ -1,12 +1,13 @@
 FROM node:alpine AS Development
 
-ARG PORT=3333
+RUN npm install -g nodemon
 
-EXPOSE ${PORT}
-WORKDIR /adrianauth
+WORKDIR /app
 COPY package.json ./
-COPY package-lock.json ./
-COPY ./ ./
+
 RUN npm i
+COPY ./ ./
+
+EXPOSE 3333
 
 CMD ["npm", "run", "dev"]

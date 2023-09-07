@@ -23,7 +23,7 @@ class AuthService {
   public async register(user: UserBody) {
     const { username, email, password } = user
     const isUserExists = await User.findOne({ $or: [{ username }, { email }] })
-    console.log(isUserExists)
+
     if (isUserExists) {
       throw new HttpError(400, 'User already exists')
     }
